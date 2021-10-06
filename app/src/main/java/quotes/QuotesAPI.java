@@ -14,21 +14,10 @@ public class QuotesAPI {
         return quoteText;
     }
 
-    public void setQuoteText(String quoteText) {
-        this.quoteText = quoteText;
-    }
 
     public String getQuoteAuthor() {
         return quoteAuthor;
     }
 
-    public void setQuoteAuthor(String quoteAuthor) {
-        this.quoteAuthor = quoteAuthor;
-    }
-
-    @Override
-    public String toString() {
-        return "QuotesAPI :\n" +  "QuoteText : " + quoteText + '.' + '\n' + "QuoteAuthor : " + quoteAuthor + '.';
-    }
 
 }
