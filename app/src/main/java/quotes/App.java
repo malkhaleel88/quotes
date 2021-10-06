@@ -5,11 +5,14 @@ package quotes;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+
+
+import java.io.*;
 import java.lang.reflect.Type;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class App {
@@ -17,10 +20,17 @@ public class App {
     public static void main(String[] args) throws IOException {
 
         int value =new Random().nextInt(readFile().size()-1);
+        System.out.println("=============================");
+        System.out.println("Quote From JSON File");
         System.out.println("The Index Of Quote : " + value);
+        System.out.println("=============================");
         System.out.println(readFile().get(value).toString());
+
+        webRequester();
     }
+
     public static ArrayList<Quotes> readFile() throws IOException {
+
         BufferedReader reader =new BufferedReader(new FileReader("./app/src/main/resources/recentquotes.json"));
         Type quotesArrayList = new TypeToken<ArrayList<quotes.Quotes>>() {}.getType();
         GsonBuilder builder = new GsonBuilder();
@@ -28,4 +38,52 @@ public class App {
         ArrayList<Quotes> converter = gson.fromJson(reader, quotesArrayList);
         return converter;
     }
-}
+        public static void webRequester() throws IOException {
+
+            Gson gson = new Gson();
+            BufferedReader reader = new BufferedReader(new FileReader("./app/src/main/resources/recentquotes.json"));
+            List<Quotes> quote = gson.fromJson(reader, new TypeToken<List<Quotes>>() {
+            }.getType());
+            reader.close();
+
+
+            try {
+                URL url = new URL("http://api.forismatic.com/api/1.0/?method=getQuote&format=json&lang=en");
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("GET");
+                connection.connect();
+                InputStreamReader inputStreamReader = new InputStreamReader(connection.getInputStream());
+
+                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+
+
+                BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter("./app/src/main/resources/recentquotes.json", false));
+                QuotesAPI qutApi = gson.fromJson(bufferedReader, QuotesAPI.class);
+                bufferedReader.close();
+
+                Quotes quotLocal = new Quotes(null, qutApi.getQuoteAuthor(), null, qutApi.getQuoteText());
+                quote.add(quotLocal);
+                gson = gson.newBuilder().setPrettyPrinting().create();
+                System.out.println("=============================");
+                System.out.println("Quote From API");
+                System.out.println("=============================");
+                System.out.println(quotLocal);
+                System.out.println("=============================");
+                bufferedWriter.write(gson.toJson(quote));
+                bufferedWriter.close();
+
+
+            } catch (Exception e) {
+
+                System.out.println(e.getMessage());
+                System.out.println("This Data From Local");
+
+                int value = new Random().nextInt(quote.size() - 1);
+                System.out.println("=============================");
+                System.out.println("Quote From JSON File");
+                System.out.println("The Index Of Quote : " + value);
+                System.out.println("=============================");
+                System.out.println(quote.get(value).toString());
+            }
+        }
+    }

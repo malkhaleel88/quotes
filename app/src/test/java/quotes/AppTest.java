@@ -5,13 +5,20 @@ package quotes;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class AppTest {
-    @Test void appHasAGreeting() {
+
+    @Test
+    public void appHasAGreeting() {
         try {
             ArrayList<Quotes> quotes = App.readFile();
             assertEquals("Quotes :\n" +
@@ -21,4 +28,19 @@ class AppTest {
             System.out.println(e.getMessage());
         }
     }
+
+    @Test
+    public void testJsonReader() throws FileNotFoundException {
+
+        BufferedReader reader = new BufferedReader(new FileReader("../app/src/main/resources/recentquotes.json"));
+        assertNotNull(String.valueOf(reader));
+    }
+
+    @Test
+    public void testAPI() throws IOException {
+        URL url = new URL("http://api.forismatic.com/api/1.0/?method=getQuote&format=json&lang=en");
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        assertEquals(200, connection.getResponseCode(), String.valueOf(true));
+    }
+
 }
