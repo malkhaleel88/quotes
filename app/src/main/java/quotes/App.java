@@ -46,16 +46,19 @@ public class App {
             }.getType());
             reader.close();
 
-
             try {
+
                 URL url = new URL("http://api.forismatic.com/api/1.0/?method=getQuote&format=json&lang=en");
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
                 connection.setRequestMethod("GET");
+                connection.setConnectTimeout(5000);
+                connection.setReadTimeout(5000);
                 connection.connect();
+                
+
                 InputStreamReader inputStreamReader = new InputStreamReader(connection.getInputStream());
-
                 BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-
 
                 BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter("./app/src/main/resources/recentquotes.json", false));
                 QuotesAPI qutApi = gson.fromJson(bufferedReader, QuotesAPI.class);
